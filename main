@@ -1,38 +1,53 @@
 #!/bin/bash
 #PBS -l nodes=1:ppn=2,walltime=4:00:00,vmem=20gb
-#PBS -N pRF
+#PBS -N app-map-atlas
 
 set -e
 set -x
 
 fsdir=$(jq -r '.freesurfer' config.json)
 atlas=$(jq -r '.atlas' config.json)
-reference=$(jq -r '.reference' config.json  )
+reference=$(jq -r '.reference' config.json)
 
 docker=docker://brainlife/neuropythy:0.12.16
 
-[ -n "${reference}" || "${reference}" != "null" ]; $$ { opt=" --image-template ${reference}"; }
+opt=""
+if [[ -n "${reference}" && "${reference}" != "null" ]]; then
+  opt="--image-template ${reference}"
+fi
 
 # make local copy of freesurfer directory
 freesurfer=./freesurfer
-[ ! -d output ] && cp -LR "${fsdir}" "${freesurfer}" && chmod -R +w "${freesurfer}"/*
+if [[ ! -d "${freesurfer}" ]]; then
+  cp -LR "${fsdir}" "${freesurfer}"
+  chmod -R +w "${freesurfer}"/*
+fi
 
 # main
 volumes=./volumes
 surfaces=./surfaces
 
-singularity exec -e ${docker}  \
-        python -m neuropythy atlas \
-        --create-directory \
-        --surface-export \
-        --verbose --atlas ${atlas}  \
-        --volume-path ${volumes} \
-        ${opt} \
-        --output-path ${surfaces} \
-        "${freesurfer}"  
+singularity exec -e "${docker}" \
+  python -m neuropythy atlas \
+  --create-directory \
+  --surface-export \
+  --verbose \
+  --atlas "${atlas}" \
+  --volume-path "${volumes}" \
+  ${opt} \
+  --output-path "${surfaces}" \
+  "${freesurfer}"
 
-[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1
-echo "$FREESURFER_LICENSE" > license.txt
-for file_mgz in $( ls ${volumes}/* ); do
-  time singularity exec -e -B "$(pwd)/license.txt:/usr/local/freesurfer/license.txt" docker://brainlife/freesurfer:7.3.2 mris_convert ${file_mgz} ${file_mgz//.mgz/.nii.gz}
+if [[ -z "${FREESURFER_LICENSE}" ]]; then
+  echo "Please set FREESURFER_LICENSE in .bashrc"
+  exit 1
+fi
+
+echo "${FREESURFER_LICENSE}" > license.txt
+
+for file_mgz in "${volumes}"/*; do
+  time singularity exec -e \
+    -B "$(pwd)/license.txt:/usr/local/freesurfer/license.txt" \
+    docker://brainlife/freesurfer:7.3.2 \
+    mris_convert "${file_mgz}" "${file_mgz/.mgz/.nii.gz}"
 done
