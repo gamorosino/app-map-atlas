@@ -60,5 +60,5 @@ for file_mgz in "${volumes}"/*.mgz; do
   singularity exec -e \
     -B "$(pwd)/license.txt:/usr/local/freesurfer/license.txt" \
     docker://brainlife/freesurfer:7.3.2 \
-    mris_convert "${file_mgz}" "${file_mgz//.mgz/.nii.gz}" 2>/dev/null
+    mri_convert "${file_mgz}" "${file_mgz//.mgz/.nii.gz}"
 done
