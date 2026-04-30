@@ -11,9 +11,9 @@ reference=$(jq -r '.reference' config.json)
 
 docker=docker://brainlife/neuropythy:0.12.16
 
-opt=""
+opt=()
 if [[ -n "${reference}" && "${reference}" != "null" ]]; then
-  opt="--image-template ${reference}"
+  opt+=(--image-template "${reference}")
 fi
 
 # make local copy of freesurfer directory
@@ -27,16 +27,18 @@ fi
 volumes=./volumes
 surfaces=./surfaces
 
+mkdir -p "${volumes}" "${surfaces}"
+
 singularity exec -e "${docker}" \
   python -m neuropythy atlas \
+  "${freesurfer}" \
   --create-directory \
   --surface-export \
   --verbose \
   --atlas "${atlas}" \
   --volume-path "${volumes}" \
-  ${opt} \
-  --output-path "${surfaces}" \
-  "${freesurfer}"
+  "${opt[@]}" \
+  --output-path "${surfaces}"
 
 if [[ -z "${FREESURFER_LICENSE}" ]]; then
   echo "Please set FREESURFER_LICENSE in .bashrc"
@@ -45,7 +47,9 @@ fi
 
 echo "${FREESURFER_LICENSE}" > license.txt
 
-for file_mgz in "${volumes}"/*; do
+for file_mgz in "${volumes}"/*.mgz; do
+  [[ -e "${file_mgz}" ]] || continue
+
   time singularity exec -e \
     -B "$(pwd)/license.txt:/usr/local/freesurfer/license.txt" \
     docker://brainlife/freesurfer:7.3.2 \
