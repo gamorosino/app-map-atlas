@@ -31,25 +31,21 @@ mkdir -p "${volumes}" "${surfaces}"
 
 echo "singularity exec -e "${docker}" \
   python -m neuropythy atlas \
-  --create-directory \
-  --surface-export \
   --verbose \
   --atlases "${atlas}" \
-  --volume-path "${volumes}" \
-  "${opt[@]}" \
-  --output-path "${surfaces}" \
-  "${freesurfer}" "
+  --volume-export  \
+  --volume-path  ./freesurfer/wang15/volumes \
+  --output-path ./freesurfer/wang15/surfaces  \
+  ./freesurfer  "
 
 singularity exec -e "${docker}" \
   python -m neuropythy atlas \
-  --create-directory \
-  --surface-export \
   --verbose \
   --atlases "${atlas}" \
-  --volume-path "${volumes}" \
-  "${opt[@]}" \
-  --output-path "${surfaces}" \
-  "${freesurfer}" 
+  --volume-export  \
+  --volume-path  ./freesurfer/wang15/volumes \
+  --output-path ./freesurfer/wang15/surfaces  \
+  ./freesurfer 
 
 if [[ -z "${FREESURFER_LICENSE}" ]]; then
   echo "Please set FREESURFER_LICENSE in .bashrc"
