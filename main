@@ -29,6 +29,17 @@ surfaces=./surfaces
 
 mkdir -p "${volumes}" "${surfaces}"
 
+echo "singularity exec -e "${docker}" \
+  python -m neuropythy atlas \
+  --create-directory \
+  --surface-export \
+  --verbose \
+  --atlas "${atlas}" \
+  --volume-path "${volumes}" \
+  "${opt[@]}" \
+  --output-path "${surfaces}" \
+  "${freesurfer}" "
+
 singularity exec -e "${docker}" \
   python -m neuropythy atlas \
   --create-directory \
