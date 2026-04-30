@@ -41,11 +41,11 @@ echo "singularity exec -e "${docker}" \
   "${freesurfer}" "
 
 singularity exec -e "${docker}" \
-  python -m neuropythy atlases \
+  python -m neuropythy atlas \
   --create-directory \
   --surface-export \
   --verbose \
-  --atlas "${atlas}" \
+  --atlases "${atlas}" \
   --volume-path "${volumes}" \
   "${opt[@]}" \
   --output-path "${surfaces}" \
