@@ -34,8 +34,8 @@ echo "singularity exec -e "${docker}" \
   --verbose \
   --atlases "${atlas}" \
   --volume-export  \
-  --volume-path  ./freesurfer/wang15/volumes \
-  --output-path ./freesurfer/wang15/surfaces  \
+  --volume-path  ./volumes \
+  --output-path ./surfaces  \
   ./freesurfer  "
 
 singularity exec -e "${docker}" \
@@ -43,8 +43,8 @@ singularity exec -e "${docker}" \
   --verbose \
   --atlases "${atlas}" \
   --volume-export  \
-  --volume-path  ./freesurfer/wang15/volumes \
-  --output-path ./freesurfer/wang15/surfaces  \
+  --volume-path  ./volumes \
+  --output-path ./surfaces  \
   ./freesurfer 
 
 if [[ -z "${FREESURFER_LICENSE}" ]]; then
