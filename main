@@ -57,8 +57,8 @@ echo "${FREESURFER_LICENSE}" > license.txt
 for file_mgz in "${volumes}"/*.mgz; do
   [[ -e "${file_mgz}" ]] || continue
 
-  time singularity exec -e \
+  singularity exec -e \
     -B "$(pwd)/license.txt:/usr/local/freesurfer/license.txt" \
     docker://brainlife/freesurfer:7.3.2 \
-    mris_convert "${file_mgz}" "${file_mgz//.mgz/.nii.gz}"
+    mris_convert "${file_mgz}" "${file_mgz//.mgz/.nii.gz}" 2>/dev/null
 done
